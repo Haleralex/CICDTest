@@ -64,8 +64,6 @@ jobs:
       matrix:
         targetPlatform:
           - Android # Build an Android .apk standalone app.
-    strategy:
-      fail-fast: false
     steps:
       - uses: actions/upload-artifact@v3
         with:

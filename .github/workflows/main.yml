@@ -25,7 +25,7 @@ jobs:
         env:
           UNITY_LICENSE: ${{ secrets.UNITY_LICENSE }}
         with:
-          githubToken: ${{ secrets.UNITY_GITHUB_TOKEN }}    
+          githubToken: $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  
       #- uses: game-ci/unity-builder@v2.2.0
       #  env:
       #    UNITY_LICENSE: ${{ secrets.UNITY_LICENSE }}

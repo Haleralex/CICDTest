@@ -10,8 +10,8 @@ jobs:
       fail-fast: false
       matrix:
         targetPlatform:
+          - iOS # Build an iOS player.
           - Android # Build an Android .apk standalone app.
-          - WebGL
     steps:
       - uses: actions/checkout@v3.3.0
         with:
@@ -44,8 +44,8 @@ jobs:
       fail-fast: false
       matrix:
         targetPlatform:
+          - iOS # Build an iOS player.
           - Android # Build an Android .apk standalone app.
-          - WebGL
     steps:
       - uses: actions/upload-artifact@v3
         with:

@@ -54,6 +54,8 @@ jobs:
         env:
           UNITY_LICENSE: ${{ secrets.UNITY_LICENSE }}
         with:
+          fetch-depth: 0
+          lfs: true
           targetPlatform: ${{ matrix.targetPlatform }}
   deploying:
     name: building apk

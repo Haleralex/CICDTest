@@ -49,8 +49,6 @@ jobs:
       matrix:
         targetPlatform:
           - Android # Build an Android .apk standalone app.
-    strategy:
-      fail-fast: false
     steps:
       - uses: game-ci/unity-builder@v2.2.0
         env:

@@ -3,8 +3,22 @@ name: Build project
 on: [push]
 
 jobs:
-  buildForAllSupportedPlatforms:
-    name: Build for ${{ matrix.targetPlatform }}
+
+  checkout:
+    name: checkout to needed branch
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+    steps:
+      - uses: actions/checkout@v3.3.0
+        with:
+          fetch-depth: 0
+          lfs: true
+  
+  
+  cache:
+    name: cache library files
+    needs: checkout
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
@@ -12,26 +26,87 @@ jobs:
         targetPlatform:
           - Android # Build an Android .apk standalone app.
     steps:
-      - uses: actions/checkout@v3.3.0
-        with:
-          fetch-depth: 0
-          lfs: true
       - uses: actions/cache@v3.2.6 
-        with:
-          path: Library
-          key: Library-${{ matrix.targetPlatform }}
-          restore-keys: Library-
+          with:
+            path: Library
+            key: Library-${{ matrix.targetPlatform }}
+            restore-keys: Library-
+
+  
+  test_runner:
+    name: running tests
+    needs: cache
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+    steps:
       - uses: game-ci/unity-test-runner@v2.1.1
         env:
           UNITY_LICENSE: ${{ secrets.UNITY_LICENSE }}
         with:
-          githubToken: ${{ secrets.GITHUB_TOKEN }}    
+          githubToken: ${{ secrets.GITHUB_TOKEN }} 
+
+
+  building:
+    name: building apk
+    needs: test_runner
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        targetPlatform:
+          - Android # Build an Android .apk standalone app.
+    strategy:
+      fail-fast: false
+    steps:
       - uses: game-ci/unity-builder@v2.2.0
         env:
           UNITY_LICENSE: ${{ secrets.UNITY_LICENSE }}
         with:
           targetPlatform: ${{ matrix.targetPlatform }}
+
+  deploying:
+    name: building apk
+    needs: building
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        targetPlatform:
+          - Android # Build an Android .apk standalone app.
+    strategy:
+      fail-fast: false
+    steps:
       - uses: actions/upload-artifact@v3
         with:
           name: Build-${{ matrix.targetPlatform }}
           path: build/${{ matrix.targetPlatform }}
+
+
+
+  #buildForAllSupportedPlatforms:
+  #  
+  #  steps:
+  #    - uses: actions/checkout@v3.3.0
+  #      with:
+  #        fetch-depth: 0
+  #        lfs: true
+  #    - uses: actions/cache@v3.2.6 
+  #      with:
+  #        path: Library
+  #        key: Library-${{ matrix.targetPlatform }}
+  #        restore-keys: Library-
+  #    - uses: game-ci/unity-test-runner@v2.1.1
+  #      env:
+  #        UNITY_LICENSE: ${{ secrets.UNITY_LICENSE }}
+  #      with:
+  #        githubToken: ${{ secrets.GITHUB_TOKEN }}    
+  #    - uses: game-ci/unity-builder@v2.2.0
+  #      env:
+  #        UNITY_LICENSE: ${{ secrets.UNITY_LICENSE }}
+  #      with:
+  #        targetPlatform: ${{ matrix.targetPlatform }}
+  #    - uses: actions/upload-artifact@v3
+  #      with:
+  #        name: Build-${{ matrix.targetPlatform }}
+  #        path: build/${{ matrix.targetPlatform }}

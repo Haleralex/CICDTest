@@ -3,8 +3,8 @@ name: Build project
 on: [push]
 
 jobs:
-  prebuild:
-    name: PreBuild
+  buildForAllSupportedPlatforms:
+    name: Build for ${{ matrix.targetPlatform }}
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
@@ -25,10 +25,19 @@ jobs:
         env:
           UNITY_LICENSE: ${{ secrets.UNITY_LICENSE }}
         with:
-          githubToken: ${{ secrets.GITHUB_TOKEN }}
-  build:
-    name: Build
-    needs: prebuild
+          githubToken: ${{ secrets.GITHUB_TOKEN }}    
+      - uses: game-ci/unity-builder@v2.2.0
+        env:
+          UNITY_LICENSE: ${{ secrets.UNITY_LICENSE }}
+        with:
+          targetPlatform: ${{ matrix.targetPlatform }}
+      #- uses: actions/upload-artifact@v3
+      #  with:
+      #    name: Build-${{ matrix.targetPlatform }}
+      #    path: build/${{ matrix.targetPlatform }}
+  delivery:
+    needs: buildForAllSupportedPlatforms
+    name: Build for ${{ matrix.targetPlatform }}
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
@@ -36,11 +45,6 @@ jobs:
         targetPlatform:
           - Android # Build an Android .apk standalone app.
     steps:
-      - uses: game-ci/unity-builder@v2.2.0
-        env:
-          UNITY_LICENSE: ${{ secrets.UNITY_LICENSE }}
-        with:
-          targetPlatform: ${{ matrix.targetPlatform }}
       - uses: actions/upload-artifact@v3
         with:
           name: Build-${{ matrix.targetPlatform }}

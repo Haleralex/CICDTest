@@ -12,6 +12,8 @@ jobs:
       matrix:
         targetPlatform:
           - Android # Build an Android .apk standalone app.
+        description:
+          - APK to test telegram api
     steps:
       - uses: actions/checkout@v3.3.0
         with:
@@ -32,17 +34,7 @@ jobs:
           UNITY_LICENSE: ${{ secrets.UNITY_LICENSE }}
         with:
           targetPlatform: ${{ matrix.targetPlatform }}
-      - uses: codfish/semantic-release-action@v2
-        with:
-          dry_run: true
-          branches: |
-            [
-              'master'
-            ]
-          repository_url: https://github.com/Haleralex/CICDTest.git
-          tag_format: 'v${version}'
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      
       - uses: actions/upload-artifact@v3
         with:
           name: Build-${{ matrix.targetPlatform }}
@@ -53,3 +45,4 @@ jobs:
           to: ${{ secrets.TELEGRAM_TO }}
           token: ${{ secrets.TELEGRAM_TOKEN }}
           document: build/${{ matrix.targetPlatform }}/Android.apk
+          message: ${{ matrix.description }}
